@@ -1,6 +1,8 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const sqlite3 = require('sqlite3').verbose();
+const Database = require('better-sqlite3');
+const db = new Database('votes.db');
+db.prepare("CREATE TABLE IF NOT EXISTS votes (id INTEGER PRIMARY KEY, candidate TEXT)").run();
 const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,8 +11,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static('public'));
 
-const db = new sqlite3.Database('./votes.db');
-db.run("CREATE TABLE IF NOT EXISTS votes (id INTEGER PRIMARY KEY, candidate TEXT)");
 
 app.post('/vote', (req, res) => {
   const { candidate } = req.body;
