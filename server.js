@@ -34,12 +34,12 @@ app.post('/vote', (req, res) => {
   const { firstname, lastname, candidate } = req.body;
   const fullName = `${firstname} ${lastname}`;
 
-  // Vérifie si la personne est autorisée à voter
+  // 🔐 Vérifie si la personne est autorisée
   if (!authorizedVoters.includes(fullName)) {
     return res.json({ message: "Nom non autorisé ou mal écrit." });
   }
 
-  // Vérifie si la personne a déjà voté
+  // 🔁 Vérifie si la personne a déjà voté
   const stmt = db.prepare("SELECT 1 FROM votes WHERE firstname = ? AND lastname = ?");
   const row = stmt.get(firstname, lastname);
 
@@ -47,12 +47,17 @@ app.post('/vote', (req, res) => {
     return res.json({ message: "Vous avez déjà voté. Merci !" });
   }
 
-  // Insère le vote
-  db.run("INSERT INTO votes (firstname, lastname, candidate) VALUES (?, ?, ?)", [firstname, lastname, candidate], (err) => {
-    if (err) return res.json({ message: "Erreur lors de l'enregistrement du vote." });
+  // ✅ Enregistre le vote (sans callback)
+  try {
+    db.prepare("INSERT INTO votes (firstname, lastname, candidate) VALUES (?, ?, ?)")
+      .run(firstname, lastname, candidate);
+
     res.json({ message: `Vote pour ${candidate} enregistré.` });
-  });
+  } catch (err) {
+    res.json({ message: "Erreur lors de l'enregistrement du vote." });
+  }
 });
+
 
 // 🔐 Page admin pour voir le résultat
 app.get('/results', (req, res) => {
