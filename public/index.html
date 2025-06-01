@@ -10,20 +10,39 @@
 </head>
 <body>
   <h1>Votez pour votre candidat préféré</h1>
-  <button onclick="vote('Ismael')">Ismael</button>
-  <button onclick="vote('Mike')">Mike</button>
-  <p id="message"></p>
+  <p><strong>⚠️ Important :</strong> Veuillez entrer votre <u>prénom et nom exactement</u> comme dans la liste des 24 votants. Sinon, votre vote ne sera pas accepté.</p>
+  <p style="font-weight:bold; color:#444;">
+  Veuillez entrer <u>votre prénom et nom</u> <strong>exactement</strong> comme transmis dans la liste.<br>
+  Un seul vote est autorisé par personne.
+</p>
+<form onsubmit="submitVote(event)">
+  <input type="text" id="prenom" placeholder="Prénom" required>
+  <input type="text" id="nom" placeholder="Nom" required>
+  <button type="submit" name="candidate" value="Ismael">Voter pour Ismael</button>
+  <button type="submit" name="candidate" value="Mike">Voter pour Mike</button>
+</form>
+<p id="message"></p>
+<script>
+  function submitVote(event) {
+    event.preventDefault();
+    const firstname = document.getElementById('prenom').value.trim();
+    const lastname = document.getElementById('nom').value.trim();
+    const candidate = event.submitter.value;
 
-  <script>
-    async function vote(candidate) {
-      const res = await fetch('/vote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ candidate })
-      });
-      const data = await res.json();
+    fetch('/vote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ firstname, lastname, candidate })
+    })
+    .then(res => res.json())
+    .then(data => {
       document.getElementById('message').innerText = data.message;
-    }
-  </script>
+    })
+    .catch(() => {
+      document.getElementById('message').innerText = "Erreur lors de l'envoi du vote.";
+    });
+  }
+</script>
+
 </body>
 </html>
