@@ -40,12 +40,12 @@ app.post('/vote', (req, res) => {
   }
 
   // Vérifie si la personne a déjà voté
-  db.get("SELECT 1 FROM votes WHERE firstname = ? AND lastname = ?", [firstname, lastname], (err, row) => {
-    if (err) return res.json({ message: "Erreur serveur." });
+const stmt = db.prepare("SELECT 1 FROM votes WHERE firstname = ? AND lastname = ?");
+const row = stmt.get(firstname, lastname);
 
-    if (row) {
-      return res.json({ message: "Vous avez déjà voté. Merci !" });
-    }
+if (row) {
+  return res.json({ message: "Vous avez déjà voté. Merci !" });
+}
 
     // Insère le vote
     db.run("INSERT INTO votes (firstname, lastname, candidate) VALUES (?, ?, ?)", [firstname, lastname, candidate], (err) => {
@@ -54,7 +54,7 @@ app.post('/vote', (req, res) => {
       res.json({ message: `Vote pour ${candidate} enregistré.` });
     });
   });
-});
+);
 // 🔐 Page admin pour voir le résultat
 app.get('/results', (req, res) => {
   const rows = db.prepare("SELECT candidate, COUNT(*) AS count FROM votes GROUP BY candidate").all();
