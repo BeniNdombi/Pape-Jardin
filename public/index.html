@@ -23,26 +23,27 @@
 </form>
 <p id="message"></p>
 <script>
-  function submitVote(event) {
-    event.preventDefault();
-    const firstname = document.getElementById('prenom').value.trim();
-    const lastname = document.getElementById('nom').value.trim();
-    const candidate = event.submitter.value;
+function submitVote(event) {
+  event.preventDefault();
+  const firstname = document.getElementById('prenom').value.trim();
+  const lastname = document.getElementById('nom').value.trim();
+  const candidate = event.submitter.value;
 
-    fetch('/vote', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ firstname, lastname, candidate })
-    })
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById('message').innerText = data.message;
-    })
-    .catch(() => {
-      document.getElementById('message').innerText = "Erreur lors de l'envoi du vote.";
-    });
-  }
+  fetch('/vote', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ firstname, lastname, candidate })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('message').innerText = data.message;
+  })
+  .catch(() => {
+    document.getElementById('message').innerText = "Erreur lors de l'envoi du vote.";
+  });
+}
 </script>
+
 
 </body>
 </html>
