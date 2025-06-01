@@ -2,33 +2,58 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Résultats du vote</title>
+  <title>Admin - Résultats</title>
   <style>
-    body { font-family: Arial; padding: 20px; background: #f0f0f0; }
-    table { width: 300px; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #000; padding: 10px; text-align: center; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    #login, #results { display: none; }
   </style>
 </head>
 <body>
-  <h1>Résultats des votes</h1>
-  <table>
-    <thead>
-      <tr><th>Candidat</th><th>Votes</th></tr>
-    </thead>
-    <tbody id="results"></tbody>
-  </table>
+  <h1>Page d'administration</h1>
+
+  <div id="login">
+    <p>Mot de passe requis :</p>
+    <input type="password" id="password">
+    <button onclick="checkPassword()">Valider</button>
+    <p id="error" style="color: red;"></p>
+  </div>
+
+  <div id="results">
+    <h2>Résultats du vote</h2>
+    <ul id="voteResults"></ul>
+  </div>
 
   <script>
-    async function loadResults() {
-      const res = await fetch('/results');
-      const data = await res.json();
-      const table = document.getElementById('results');
-      table.innerHTML = data.map(row =>
-        `<tr><td>${row.candidate}</td><td>${row.votes}</td></tr>`
-      ).join('');
+    const CORRECT_PASSWORD = "bebe1503"; // 🔐 Change ce mot de passe ici
+
+    document.getElementById("login").style.display = "block";
+
+    function checkPassword() {
+      const entered = document.getElementById("password").value;
+      if (entered === CORRECT_PASSWORD) {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("results").style.display = "block";
+        fetchResults();
+      } else {
+        document.getElementById("error").innerText = "Mot de passe incorrect.";
+      }
     }
 
-    loadResults();
+    async function fetchResults() {
+      const res = await fetch('/results');
+      const data = await res.json();
+      const ul = document.getElementById("voteResults");
+      ul.innerHTML = '';
+      for (const candidate in data) {
+        const li = document.createElement("li");
+        li.textContent = `${candidate} : ${data[candidate]} vote(s)`;
+        ul.appendChild(li);
+      }
+    }
   </script>
 </body>
 </html>

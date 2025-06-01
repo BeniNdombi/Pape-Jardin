@@ -45,3 +45,23 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Serveur actif sur http://localhost:${port}`);
 });
+app.get('/results', (req, res) => {
+  const results = {};
+  db.each("SELECT candidate, COUNT(*) as count FROM votes GROUP BY candidate", (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: "Erreur lors de la récupération des résultats." });
+    }
+    results[row.candidate] = row.count;
+  }, () => {
+    res.json(results);
+  });
+});
+
+app.get('/results', (req, res) => {
+  db.all("SELECT candidate, COUNT(*) as votes FROM votes GROUP BY candidate", (err, rows) => {
+    if (err) {
+      return res.status(500).json({ message: "Erreur lors de la récupération des résultats." });
+    }
+    res.json(rows);
+  });
+});
