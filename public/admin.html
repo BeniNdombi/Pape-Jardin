@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Résultats du vote</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f0f0f0; }
+    table { width: 300px; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #000; padding: 10px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Résultats des votes</h1>
+  <table>
+    <thead>
+      <tr><th>Candidat</th><th>Votes</th></tr>
+    </thead>
+    <tbody id="results"></tbody>
+  </table>
+
+  <script>
+    async function loadResults() {
+      const res = await fetch('/results');
+      const data = await res.json();
+      const table = document.getElementById('results');
+      table.innerHTML = data.map(row =>
+        `<tr><td>${row.candidate}</td><td>${row.votes}</td></tr>`
+      ).join('');
+    }
+
+    loadResults();
+  </script>
+</body>
+</html>
