@@ -1,17 +1,21 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const Database = require('better-sqlite3');
-const db = new Database('votes.db');
-db.prepare("CREATE TABLE IF NOT EXISTS votes (id INTEGER PRIMARY KEY, candidate TEXT)").run();
 const path = require('path');
+
+const db = new Database('votes.db');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static('public'));
 
+// Créer la table si elle n'existe pas
+db.prepare("CREATE TABLE IF NOT EXISTS votes (id INTEGER PRIMARY KEY, candidate TEXT)").run();
 
+// Route POST /vote
 app.post('/vote', (req, res) => {
   const { candidate } = req.body;
 
@@ -20,15 +24,24 @@ app.post('/vote', (req, res) => {
   }
 
   if (candidate === 'Ismael' || candidate === 'Mike') {
-    db.run("INSERT INTO votes (candidate) VALUES (?)", [candidate], (err) => {
-      if (err) return res.json({ message: "Erreur lors de l'enregistrement." });
-
+    try {
+      db.prepare("INSERT INTO votes (candidate) VALUES (?)").run(candidate);
       res.cookie('hasVoted', 'true', { maxAge: 86400000 }); // 1 jour
-      res.json({ message: `Vote pour ${candidate} enregistré.` });
-    });
-  } else {
-    res.json({ message: "Candidat invalide." });
+      return res.json({ message: `Vote pour ${candidate} enregistré.` });
+    } catch (err) {
+      return res.json({ message: "Erreur lors de l'enregistrement." });
+    }
   }
+
+  return res.json({ message: "Candidat invalide." });
 });
 
-app.listen(port, () => console.log(`Serveur actif sur http://localhost:${port}`));
+// Route GET /
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Lancement du serveur
+app.listen(port, () => {
+  console.log(`Serveur actif sur http://localhost:${port}`);
+});
