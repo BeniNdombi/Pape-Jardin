@@ -2,6 +2,7 @@
   "name": "vote-app",
   "version": "1.0.0",
   "scripts": {
+    "install": "npm install --build-from-source",
     "start": "node server.js"
   },
   "dependencies": {
