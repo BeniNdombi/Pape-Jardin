@@ -1,6 +1,6 @@
 {
   "name": "vote-app",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "scripts": {
     "install": "npm install --build-from-source",
     "start": "node server.js"
