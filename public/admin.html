@@ -4,56 +4,45 @@
   <meta charset="UTF-8">
   <title>Admin - Résultats</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-    }
-    #login, #results { display: none; }
+    body { font-family: Arial; padding: 40px; background: #f7f7f7; text-align: center; }
+    h1 { font-size: 28px; }
+    .resultats { margin-top: 30px; font-size: 20px; }
+    .termine { color: green; font-weight: bold; margin-top: 20px; }
   </style>
 </head>
 <body>
   <h1>Page d'administration</h1>
-
-  <div id="login">
-    <p>Mot de passe requis :</p>
-    <input type="password" id="password">
-    <button onclick="checkPassword()">Valider</button>
-    <p id="error" style="color: red;"></p>
-  </div>
-
-  <div id="results">
-    <h2>Résultats du vote</h2>
-    <ul id="voteResults"></ul>
-  </div>
+  <h2>Résultats du vote</h2>
+  <div id="resultats" class="resultats">Chargement...</div>
+  <div id="termine" class="termine"></div>
 
   <script>
-    const CORRECT_PASSWORD = "bebe1503"; // 🔐 Change ce mot de passe ici
+    fetch('/results')
+      .then(res => res.json())
+      .then(data => {
+        const div = document.getElementById('resultats');
 
-    document.getElementById("login").style.display = "block";
+        if (data.details.length === 0) {
+          div.innerText = "Aucun vote pour le moment.";
+          return;
+        }
 
-    function checkPassword() {
-      const entered = document.getElementById("password").value;
-      if (entered === CORRECT_PASSWORD) {
-        document.getElementById("login").style.display = "none";
-        document.getElementById("results").style.display = "block";
-        fetchResults();
-      } else {
-        document.getElementById("error").innerText = "Mot de passe incorrect.";
-      }
-    }
+        let html = `<p><strong>Total de votes :</strong> ${data.totalVotes} / 24</p>`;
+        html += `<p><strong>Gagnant actuel :</strong> ${data.winner}</p>`;
+        html += `<ul style="list-style:none;">`;
+        data.details.forEach(d => {
+          html += `<li>${d.candidate} : ${d.count} votes</li>`;
+        });
+        html += `</ul>`;
+        div.innerHTML = html;
 
-    async function fetchResults() {
-      const res = await fetch('/results');
-      const data = await res.json();
-      const ul = document.getElementById("voteResults");
-      ul.innerHTML = '';
-      for (const candidate in data) {
-        const li = document.createElement("li");
-        li.textContent = `${candidate} : ${data[candidate]} vote(s)`;
-        ul.appendChild(li);
-      }
-    }
+        if (data.totalVotes === 24) {
+          document.getElementById('termine').innerText = "✅ Tous les votes ont été reçus. Le vote est terminé.";
+        }
+      })
+      .catch(() => {
+        document.getElementById('resultats').innerText = "Erreur lors du chargement des résultats.";
+      });
   </script>
 </body>
 </html>
