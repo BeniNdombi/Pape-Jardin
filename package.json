@@ -2,7 +2,7 @@
   "name": "vote-app",
   "version": "1.0.2",
   "scripts": {
-    "install": "npm install --build-from-source",
+    "install": "npm rebuild better-sqlite3",
     "start": "node server.js"
   },
   "dependencies": {
