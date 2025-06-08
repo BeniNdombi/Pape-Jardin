@@ -13,36 +13,29 @@
 <body>
   <h1>Page d'administration</h1>
   <h2>Résultats du vote</h2>
-  <div id="resultats" class="resultats">Chargement...</div>
+  <p id="resultats">Chargement...</p>
   <div id="termine" class="termine"></div>
 
   <script>
-    fetch('/results')
-      .then(res => res.json())
-      .then(data => {
-        const div = document.getElementById('resultats');
-
-        if (data.details.length === 0) {
-          div.innerText = "Aucun vote pour le moment.";
-          return;
-        }
-
-        let html = `<p><strong>Total de votes :</strong> ${data.totalVotes} / 24</p>`;
-        html += `<p><strong>Gagnant actuel :</strong> ${data.winner}</p>`;
-        html += `<ul style="list-style:none;">`;
-        data.details.forEach(d => {
-          html += `<li>${d.candidate} : ${d.count} votes</li>`;
-        });
-        html += `</ul>`;
-        div.innerHTML = html;
-
-        if (data.totalVotes === 24) {
-          document.getElementById('termine').innerText = "✅ Tous les votes ont été reçus. Le vote est terminé.";
-        }
-      })
-      .catch(() => {
-        document.getElementById('resultats').innerText = "Erreur lors du chargement des résultats.";
+  fetch('/results')
+  .then(res => res.json())
+  .then(data => {
+    const message = document.getElementById('resultats');
+    if (data.totalVotes === 0) {
+      message.innerText = "Aucun vote pour le moment.";
+    } else {
+      let output = `Nombre total de votes : ${data.totalVotes}\n`;
+      output += `\nGagnant : ${data.winner}\n\n`;
+      output += "Détails des votes :\n";
+      data.details.forEach(result => {
+        output += `${result.candidate} : ${result.count} vote(s)\n`;
       });
+      message.innerText = output;
+    }
+  })
+  .catch(err => {
+    document.getElementById('resultats').innerText = "Erreur lors de la récupération des résultats.";
+  });
   </script>
 </body>
 </html>
